@@ -1,0 +1,22 @@
+{
+    "config": {
+      "step": {
+        "user": {
+          "data": {
+            "club": "Hockey club"
+          },
+          "description": "Select your hockey club",
+          "title": "Club selection"
+        },
+        "team": {
+          "data": {
+              "team_name": "Team to track",
+              "name": "Name of the sensor.",
+              "add_another": "Add another team?"
+          },
+          "description": "Add a team to track, check the box to add another.",
+          "title": "Add team"
+        }
+      }
+    }
+}
