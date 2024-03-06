@@ -28,7 +28,7 @@ sensor:
     name: Goudse MHC H2
 
 ## Output
-The sensors it creates do an api call to https://publicaties.hockeyweerelt.nl/mc/teams/{team_id}/matches/upcoming?show_all=0 and put the attributes to $.data[0]
+The sensors it creates do an api call to https://publicaties.hockeyweerelt.nl/mc/teams/{team_id}/matches/upcoming?show_all=0 and sets the attributes to $.data[0] every 10 minutes.
 
 Use a custom card to display the data for example.
 
