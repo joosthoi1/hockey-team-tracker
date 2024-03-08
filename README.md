@@ -3,6 +3,8 @@
 
 ## About
 A simple custom component to track the upcoming match from a dutch field hockey teams using the HockeyWeerelt api.
+## Installation
+HACS → Integrations → 3 dots → Custom repositories → Put https://github.com/joosthoi1/hockey-team-tracker under ‘repository’ → Put Integration as category → Click add and it should show up so you can download it.
 
 ## Usage
 Add a team using the config flow at Settings > Devices & Services > Add integration > Hockey Team Tracker.
@@ -12,20 +14,23 @@ Select a team and optionally give a sensor name, if you want to select more team
 ### Manual
 I dont recommend manually adding a sensor, but it is possible with the following scheme:
 
-sensor:
-  - platform: hockey_team_tracker
-  club: N103 | optional
-  club_name: Goudse MHC | optional
-  teams: | required
-  - team: N15163 | required
-    team_name: D1 Zaal | optional
-    name: Goudse MHC D1 | optional
-  - team: N10814
-    team_name: H1 Zaal
-    name: Goudse MHC H1
-  - team: N33801
-    team_name: H2 Zaal
-    name: Goudse MHC H2
+```yaml
+sensor:  
+  - platform: hockey_team_tracker  
+  club: N103 | optional  
+  club_name: Goudse MHC | optional  
+  teams: | required  
+  - team: N15163 | required  
+    team_name: D1 Zaal | optional  
+    name: Goudse MHC D1 | optional  
+  - team: N10814  
+    team_name: H1 Zaal  
+    name: Goudse MHC H1  
+  - team: N33801  
+    team_name: H2 Zaal  
+    name: Goudse MHC H2  
+```
+
 
 ## Output
 The sensors it creates do an api call to https://publicaties.hockeyweerelt.nl/mc/teams/{team_id}/matches/upcoming?show_all=0 and sets the attributes to $.data[0] every 10 minutes.
