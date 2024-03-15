@@ -5,12 +5,11 @@ from datetime import timedelta
 import logging
 from typing import Any
 
-from aiohttp import ClientError
 import voluptuous as vol
 
 from homeassistant import config_entries, core
 from homeassistant.components.sensor import PLATFORM_SCHEMA
-from homeassistant.const import CONF_NAME, CONF_URL
+from homeassistant.const import CONF_NAME
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
@@ -20,15 +19,7 @@ from homeassistant.helpers.typing import (
     HomeAssistantType,
 )
 
-from .const import (
-    CONF_CLUB,
-    CONF_CLUB_NAME,
-    CONF_TEAM,
-    CONF_TEAM_NAME,
-    CONF_TEAMS,
-    ATTR_DATA,
-    DOMAIN,
-)
+from .const import CONF_COMPETITION, CONF_TEAM, CONF_TEAMS, DOMAIN
 from .HockeyWeerelt import hockeyweerelt
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,17 +29,14 @@ SCAN_INTERVAL = timedelta(minutes=10)
 TEAM_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_TEAM): cv.string,
-        vol.Optional(CONF_TEAM_NAME): cv.string,
         vol.Required(CONF_NAME): cv.string,
+        vol.Optional(CONF_COMPETITION): cv.string,
     }
 )
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
-        vol.Required(CONF_CLUB): cv.string,
-        vol.Optional(CONF_CLUB_NAME): cv.string,
         vol.Required(CONF_TEAMS): vol.All(cv.ensure_list, [TEAM_SCHEMA]),
-        vol.Optional(CONF_URL): cv.url,
     }
 )
 
@@ -94,7 +82,11 @@ class HockeyTeamTrackerSensor(Entity):
         self.hockeyweereltapi = hockeyweereltapi
         self.team = team[CONF_TEAM]
         self.attrs: dict[str, Any] = {CONF_TEAM: self.team}
-        self._name = team.get(CONF_NAME, self.team)
+        self._name = team[CONF_NAME]
+        self._competition = team.get(CONF_COMPETITION, None)
+        self._id = self.team
+        if self._competition is not None:
+            self._id += self._competition
         self._state = None
         self._available = True
 
@@ -106,7 +98,7 @@ class HockeyTeamTrackerSensor(Entity):
     @property
     def unique_id(self) -> str:
         """Return the unique ID of the sensor."""
-        return self.team
+        return self._id
 
     @property
     def available(self) -> bool:
@@ -125,8 +117,9 @@ class HockeyTeamTrackerSensor(Entity):
     async def async_update(self) -> None:
         """Update all sensors."""
         try:
-            match_data = await self.hockeyweereltapi.get_next_team_match(self.team)
-            _LOGGER.info(match_data)
+            match_data = await self.hockeyweereltapi.get_next_team_match(
+                self.team, self._competition
+            )
             self.attrs = match_data["data"][0]
 
             self._state = "OK"

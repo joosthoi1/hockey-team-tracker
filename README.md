@@ -17,17 +17,13 @@ I dont recommend manually adding a sensor, but it is possible with the following
 ```yaml
 sensor:  
   - platform: hockey_team_tracker  
-  club: N103 | optional  
-  club_name: Goudse MHC | optional  
   teams: | required  
   - team: N15163 | required  
-    team_name: D1 Zaal | optional  
-    name: Goudse MHC D1 | optional  
+    name: Goudse MHC D1 | required  
+    competition: N12 | optional  
   - team: N10814  
-    team_name: H1 Zaal  
     name: Goudse MHC H1  
   - team: N33801  
-    team_name: H2 Zaal  
     name: Goudse MHC H2  
 ```
 
