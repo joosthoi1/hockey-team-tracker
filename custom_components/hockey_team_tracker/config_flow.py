@@ -93,6 +93,8 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             team_name = user_input[CONF_TEAM_NAME]
             team_id = team_dict[team_name]
 
+            self.extra_data["changed_name"] = CONF_NAME in user_input
+
             sensor_name = user_input.get(
                 CONF_NAME,
                 f"{self.extra_data[CONF_CLUB_NAME]} {team_name}",
@@ -133,6 +135,8 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 competition_id = competition_dict[competition_name]
 
                 self.data[CONF_TEAMS][-1][CONF_COMPETITION] = competition_id
+                if not self.extra_data["changed_name"]:
+                    self.data[CONF_TEAMS][-1][CONF_NAME] += f" {competition_name}"
 
             # Add another was checked in previous step
             if self.extra_data[CONF_ADD_ANOTHER]:
