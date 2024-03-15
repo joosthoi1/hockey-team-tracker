@@ -1,11 +1,11 @@
 {
+  "domain": "hockey_team_tracker",
+  "name": "Hockey Team Tracker",
   "codeowners": ["@joosthoi1"],
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/joosthoi1/hockey-team-tracker",
-  "domain": "hockey_team_tracker",
   "iot_class": "cloud_polling",
-  "name": "Hockey Team Tracker",
   "requirements": [],
-  "version": "1.0.0"
+  "version": "1.1.0"
 }
