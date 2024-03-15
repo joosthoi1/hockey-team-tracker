@@ -31,8 +31,10 @@ class Api:
     async def get_team_info(self, team):
         return await self.fetch(f"{self.base_url}/mc/teams/{team}")
 
-    async def get_next_team_match(self, team):
+    async def get_next_team_match(self, team, competition=None):
         params = {"show_all": 0}
+        if competition:
+            params["competition_id"] = competition
         matches = await self.fetch(
             f"{self.base_url}/mc/teams/{team}/matches/upcoming", params=params
         )
