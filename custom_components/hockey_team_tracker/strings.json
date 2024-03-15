@@ -1,22 +1,33 @@
 {
-    "config": {
-      "step": {
-        "user": {
-          "data": {
-            "club": "Hockey club"
-          },
-          "description": "Select your hockey club",
-          "title": "Club selection"
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "club_name": "Hockey club"
         },
-        "team": {
-          "data": {
-              "team_name": "Team to track",
-              "name": "Name of the sensor.",
-              "add_another": "Add another team?"
-          },
-          "description": "Add a team to track, check the box to add another.",
-          "title": "Add team"
-        }
+        "description": "Select your hockey club",
+        "title": "Club selection"
+      },
+      "team": {
+        "data": {
+            "team_name": "Team to track",
+            "select_competition": "Select a specific competition to track. Keep unchecked to track all competitions",
+            "name": "Name of the sensor. (Optional)",
+            "add_another": "Add another team?"
+        },
+        "description": "Add a team to track, check the box to add another.",
+        "title": "Add team"
+      },
+      "competition": {
+        "data": {
+          "competition_name": "Competition to track"
+        },
+        "description": "Select a competition to track",
+        "title": "Select competition"
       }
+    },
+    "error": {
+      "empty_list": "No competitions were returned. This usually means there is only one. You can safely continue without selecting a competition."
     }
+  }
 }
