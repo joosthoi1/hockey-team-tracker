@@ -120,6 +120,8 @@ class HockeyTeamTrackerSensor(Entity):
             match_data = await self.hockeyweereltapi.get_next_team_match(
                 self.team, self._competition
             )
+            if len(match_data["data"]) < 1:
+                return
             self.attrs = match_data["data"][0]
 
             self._state = "OK"

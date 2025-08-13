@@ -1,5 +1,8 @@
 import aiohttp
 import asyncio
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class Api:
@@ -35,9 +38,10 @@ class Api:
         params = {"show_all": 0}
         if competition:
             params["competition_id"] = competition
-        matches = await self.fetch(
-            f"{self.base_url}/mc/teams/{team}/matches/upcoming", params=params
-        )
+
+        url = f"{self.base_url}/mc/teams/{team}/matches/upcoming"
+        matches = await self.fetch(url, params=params)
+
         return matches
 
     async def get_team_matches(self, team, competition):
