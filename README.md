@@ -31,6 +31,6 @@ sensor:
 ## Output
 The sensors it creates do an api call to https://publicaties.hockeyweerelt.nl/mc/teams/{team_id}/matches/upcoming?show_all=0 and sets the attributes to $.data[0] every 10 minutes.
 
-Use a custom card to display the data for example.
+Use a custom card to display the data for example. I personally developed this card for the job, but you can use whatever you want.  https://github.com/MadSnuif/hockeynl-card
 
 ![image](https://github.com/joosthoi1/hockey-team-tracker/assets/44155686/203eb594-04e1-4618-a5b3-a11d60b412ef)
