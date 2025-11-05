@@ -61,7 +61,7 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.extra_data = {}
         self.hockeyweerelt_api = None
 
-    async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
+    async def async_step_user(self, user_input: dict[str, Any] | None = None):
         """Invoked when a user initiates a flow via the user interface. Used for selecting the club."""
 
         # Initialize api
@@ -84,7 +84,7 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=_get_club_schema(club_list),
         )
 
-    async def async_step_team(self, user_input: Optional[Dict[str, Any]] = None):
+    async def async_step_team(self, user_input: dict[str, Any] | None = None):
         """Second step in config flow to add a team to watch."""
 
         team_dict, team_list = await self.__get_team_dict(self.extra_data[CONF_CLUB])
@@ -120,9 +120,9 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=_get_team_schema(team_list),
         )
 
-    async def async_step_competition(self, user_input: Optional[Dict[str, Any]] = None):
+    async def async_step_competition(self, user_input: dict[str, Any] | None = None):
         """Third optional step in config flow to add a competition to watch for the team."""
-        errors: Dict[str, str] = {}
+        errors: dict[str, str] = {}
         competition_dict, competition_list = await self.__get_competition_dict(
             self.data[CONF_TEAMS][-1][CONF_TEAM]
         )
@@ -151,7 +151,7 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def __get_club_dict(self):
+    async def __get_club_dict(self) -> tuple[dict[str, int], list[str]]:
         club_data = await self.hockeyweerelt_api.get_clubs()
 
         club_dict = {}

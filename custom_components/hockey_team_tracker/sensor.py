@@ -8,16 +8,13 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries, core
-from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.components.sensor import PLATFORM_SCHEMA as SENSOR_PLATFORM_SCHEMA
 from homeassistant.const import CONF_NAME
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.typing import (
-    ConfigType,
-    DiscoveryInfoType,
-    HomeAssistantType,
-)
+from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from .const import CONF_COMPETITION, CONF_TEAM, CONF_TEAMS, DOMAIN
 from .HockeyWeerelt import hockeyweerelt
@@ -34,7 +31,7 @@ TEAM_SCHEMA = vol.Schema(
     }
 )
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+SENSOR_PLATFORM_SCHEMA = SENSOR_PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_TEAMS): vol.All(cv.ensure_list, [TEAM_SCHEMA]),
     }
@@ -60,7 +57,7 @@ async def async_setup_entry(
 
 
 async def async_setup_platform(
-    hass: HomeAssistantType,
+    hass: HomeAssistant,
     config: ConfigType,
     async_add_entities: Callable,
     discovery_info: DiscoveryInfoType | None = None,
@@ -77,13 +74,15 @@ async def async_setup_platform(
 class HockeyTeamTrackerSensor(Entity):
     """Representation of a Hockey Team Tracker sensor."""
 
-    def __init__(self, hockeyweereltapi: hockeyweerelt.Api, team: dict[str, str]):
+    def __init__(
+        self, hockeyweereltapi: hockeyweerelt.Api, team: dict[str, str]
+    ) -> None:
         super().__init__()
         self.hockeyweereltapi = hockeyweereltapi
         self.team = team[CONF_TEAM]
         self.attrs: dict[str, Any] = {CONF_TEAM: self.team}
         self._name = team[CONF_NAME]
-        self._competition = team.get(CONF_COMPETITION, None)
+        self._competition = team.get(CONF_COMPETITION)
         self._id = self.team
         if self._competition is not None:
             self._id += self._competition
@@ -120,6 +119,8 @@ class HockeyTeamTrackerSensor(Entity):
             match_data = await self.hockeyweereltapi.get_next_team_match(
                 self.team, self._competition
             )
+            if len(match_data["data"]) < 1:
+                return
             self.attrs = match_data["data"][0]
 
             self._state = "OK"
