@@ -65,7 +65,7 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Invoked when a user initiates a flow via the user interface. Used for selecting the club."""
 
         # Initialize api
-        self.hockeyweerelt_api = hockeyweerelt.Api(
+        self.hockeyweerelt_api = await hockeyweerelt.Api.create(
             session=async_get_clientsession(self.hass)
         )
 
@@ -157,7 +157,7 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         club_dict = {}
         club_list = []
 
-        for club in club_data["data"]:
+        for club in club_data:
             club_name = club["name"]
             club_dict[club_name] = club["id"]
             club_list.append(club_name)
@@ -170,7 +170,7 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         team_dict = {}
         team_list = []
 
-        for team in team_data["data"]:
+        for team in team_data:
             team_name = f"{team['short_name']} {team['type']}"
             team_dict[team_name] = team["id"]
             team_list.append(team_name)
@@ -183,7 +183,7 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         competition_dict = {}
         competition_list = []
 
-        for competition in competition_data["data"]["competitions"]:
+        for competition in competition_data["competitions"]:
             competition_name = competition["name"]
             competition_dict[competition_name] = competition["id"]
             competition_list.append(competition_name)
