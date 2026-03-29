@@ -49,7 +49,7 @@ async def async_setup_entry(
     if config_entry.options:
         config.update(config_entry.options)
     session = async_get_clientsession(hass)
-    hockeyweereltapi = hockeyweerelt.Api(session)
+    hockeyweereltapi = await hockeyweerelt.Api.create(session)
     sensors = [
         HockeyTeamTrackerSensor(hockeyweereltapi, team) for team in config[CONF_TEAMS]
     ]
@@ -64,7 +64,7 @@ async def async_setup_platform(
 ) -> None:
     """Set up the sensor platform."""
     session = async_get_clientsession(hass)
-    hockeyweereltapi = hockeyweerelt.Api(session)
+    hockeyweereltapi = await hockeyweerelt.Api.create(session)
     sensors = [
         HockeyTeamTrackerSensor(hockeyweereltapi, team) for team in config[CONF_TEAMS]
     ]
@@ -119,9 +119,9 @@ class HockeyTeamTrackerSensor(Entity):
             match_data = await self.hockeyweereltapi.get_next_team_match(
                 self.team, self._competition
             )
-            if len(match_data["data"]) < 1:
+            if not match_data:
                 return
-            self.attrs = match_data["data"][0]
+            self.attrs = match_data
 
             self._state = "OK"
             self._available = True

@@ -65,7 +65,7 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Invoked when a user initiates a flow via the user interface. Used for selecting the club."""
 
         # Initialize api
-        self.hockeyweerelt_api = hockeyweerelt.Api(
+        self.hockeyweerelt_api = await hockeyweerelt.Api.create(
             session=async_get_clientsession(self.hass)
         )
 
@@ -124,7 +124,8 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Third optional step in config flow to add a competition to watch for the team."""
         errors: dict[str, str] = {}
         competition_dict, competition_list = await self.__get_competition_dict(
-            self.data[CONF_TEAMS][-1][CONF_TEAM]
+            self.extra_data[CONF_CLUB],
+            self.data[CONF_TEAMS][-1][CONF_TEAM],
         )
         if not competition_list:
             errors["base"] = "empty_list"
@@ -157,9 +158,9 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         club_dict = {}
         club_list = []
 
-        for club in club_data["data"]:
+        for club in club_data:
             club_name = club["name"]
-            club_dict[club_name] = club["id"]
+            club_dict[club_name] = club["federation_reference_id"]
             club_list.append(club_name)
 
         return club_dict, club_list
@@ -170,22 +171,23 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         team_dict = {}
         team_list = []
 
-        for team in team_data["data"]:
-            team_name = f"{team['short_name']} {team['type']}"
+        for team in team_data:
+            team_name = f"{team['short_name']} {team['hockey_type']}"
             team_dict[team_name] = team["id"]
             team_list.append(team_name)
 
         return team_dict, team_list
 
-    async def __get_competition_dict(self, team_id):
-        competition_data = await self.hockeyweerelt_api.get_team_info(team_id)
+    async def __get_competition_dict(self, club, team):
+        poule_data = await self.hockeyweerelt_api.get_team_poules(club, team)
 
         competition_dict = {}
         competition_list = []
 
-        for competition in competition_data["data"]["competitions"]:
-            competition_name = competition["name"]
-            competition_dict[competition_name] = competition["id"]
+        for poule in poule_data:
+            competition = poule["competition"]
+            competition_name = f"{competition['name']} {poule['name']}"
+            competition_dict[competition_name] = poule["id"]
             competition_list.append(competition_name)
 
         return competition_dict, competition_list

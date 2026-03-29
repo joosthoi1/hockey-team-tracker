@@ -1,0 +1,3 @@
+[submodule "custom_components/hockey_team_tracker/HockeyWeerelt"]
+	path = custom_components/hockey_team_tracker/HockeyWeerelt
+	url = https://github.com/joosthoi1/HockeyWeerelt
