@@ -15,21 +15,21 @@ Select a team and optionally give a sensor name, if you want to select more team
 I dont recommend manually adding a sensor, but it is possible with the following scheme:
 
 ```yaml
-sensor:  
-  - platform: hockey_team_tracker  
-  teams: | required  
-  - team: N15163 | required  
-    name: Goudse MHC D1 | required  
-    competition: N12 | optional  
-  - team: N10814  
-    name: Goudse MHC H1  
-  - team: N33801  
-    name: Goudse MHC H2  
+sensor:
+  - platform: hockey_team_tracker
+  teams: | required
+  - team: 3706 | required
+    name: Goudse MHC D1 | required
+    competition: 173447 | optional
+  - team: 3702
+    name: Goudse MHC H1
+  - team: 722
+    name: Goudse MHC H2
 ```
 
 
 ## Output
-The sensors it creates do an api call to https://publicaties.hockeyweerelt.nl/mc/teams/{team_id}/matches/upcoming?show_all=0 and sets the attributes to $.data[0] every 10 minutes.
+The sensors it creates do an api call, either to https://app.hockeyweerelt.nl/matches/team (With team_id[] set to the team id) or to https://app.hockeyweerelt.nl/poules/{poule_id}/teams/{team_id} depending on wether you selected a competition (Renamed to poule in the api) or not. It then processes the response by checking $[data] where m.get("status") == "scheduled".
 
 Use a custom card to display the data for example. I personally developed this card for the job, but you can use whatever you want.  https://github.com/MadSnuif/hockeynl-card
 
