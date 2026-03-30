@@ -4,7 +4,7 @@ import zipfile
 from pathlib import Path
 import shutil
 
-FILE = ".submodules"
+FILE = ".gitmodules"
 TARGET_DIR = Path("custom_components/hockey_team_tracker")
 OUTPUT_ZIP = "release_with_submodules.zip"
 
