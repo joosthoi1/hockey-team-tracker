@@ -1,0 +1,27 @@
+name: Build Release with Submodules
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Create zip (contents only)
+        run: |
+          cd custom_components/hockey_team_tracker
+          zip -r ../../../release_with_submodules.zip . -x "*.git*"
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release_with_submodules.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
