@@ -4,6 +4,9 @@ on:
   release:
     types: [created]
 
+permissions:
+  contents: write   # 👈 THIS FIXES YOUR ERROR
+
 jobs:
   build:
     runs-on: ubuntu-latest
