@@ -20,7 +20,7 @@ jobs:
       - name: Create zip (contents only)
         run: |
           cd custom_components/hockey_team_tracker
-          zip -r ../../../release_with_submodules.zip . -x "*.git*"
+          zip -r ../../release_with_submodules.zip . -x "*.git*"
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
