@@ -60,14 +60,19 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.data = {}
         self.extra_data = {}
         self.hockeyweerelt_api = None
+        # ponytail: per-flow cache, the API allows only 5 requests/minute
+        self._clubs = None
+        self._club_info = {}
+        self._team_poules = {}
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None):
         """Invoked when a user initiates a flow via the user interface. Used for selecting the club."""
 
-        # Initialize api
-        self.hockeyweerelt_api = await hockeyweerelt.Api.create(
-            session=async_get_clientsession(self.hass)
-        )
+        # Initialize api once per flow, every step is called again on submit
+        if self.hockeyweerelt_api is None:
+            self.hockeyweerelt_api = await hockeyweerelt.Api.create(
+                session=async_get_clientsession(self.hass)
+            )
 
         club_dict, club_list = await self.__get_club_dict()
 
@@ -153,7 +158,9 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def __get_club_dict(self) -> tuple[dict[str, int], list[str]]:
-        club_data = await self.hockeyweerelt_api.get_clubs()
+        if self._clubs is None:
+            self._clubs = await self.hockeyweerelt_api.get_clubs()
+        club_data = self._clubs
 
         club_dict = {}
         club_list = []
@@ -166,7 +173,7 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return club_dict, club_list
 
     async def __get_team_dict(self, club_id):
-        team_data = await self.hockeyweerelt_api.get_club_teams(club_id)
+        team_data = (await self.__get_club_info(club_id)).get("teams", [])
 
         team_dict = {}
         team_list = []
@@ -179,7 +186,7 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return team_dict, team_list
 
     async def __get_competition_dict(self, club, team):
-        poule_data = await self.hockeyweerelt_api.get_team_poules(club, team)
+        poule_data = await self.__get_team_poules(club, team)
 
         competition_dict = {}
         competition_list = []
@@ -191,3 +198,23 @@ class HockeyTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             competition_list.append(competition_name)
 
         return competition_dict, competition_list
+
+    async def __get_club_info(self, club_id) -> dict:
+        if club_id not in self._club_info:
+            self._club_info[club_id] = await self.hockeyweerelt_api.get_club_info(
+                club_id
+            )
+        return self._club_info[club_id]
+
+    async def __get_team_poules(self, club_id, team_id) -> list:
+        """Same as Api.get_team_poules, but reuses the cached club info."""
+        if team_id not in self._team_poules:
+            teams = (await self.__get_club_info(club_id)).get("teams", [])
+            team = next((t for t in teams if t["id"] == team_id), None)
+            if not team:
+                raise ValueError("Team not found")
+            info = await self.hockeyweerelt_api.get_poule_team(
+                team.get("recent_poule_id"), team_id
+            )
+            self._team_poules[team_id] = info.get("team", {}).get("poules", [])
+        return self._team_poules[team_id]
